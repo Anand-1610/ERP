@@ -1,5 +1,4 @@
 // login.js
-
 const form = document.getElementById('login-form');
 const errorDiv = document.getElementById('login-error');
 
@@ -12,7 +11,6 @@ if (form) {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     
-    // CHANGE: Use 'supabaseClient' here
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     
     if (error) {
@@ -38,7 +36,6 @@ if (signupBtn) {
       return;
     }
 
-    // CHANGE: Use 'supabaseClient' here
     const { data, error } = await supabaseClient.auth.signUp({ email, password });
 
     if (error) {
@@ -46,11 +43,12 @@ if (signupBtn) {
       return;
     }
 
+    // Immediate Redirect if session exists (Auto-confirm enabled)
     if (data.session) {
       window.location.href = 'main.html';
     } else {
       errorDiv.style.color = 'green';
-      errorDiv.textContent = 'Sign up successful! Check your email to confirm.';
+      errorDiv.textContent = 'Sign up successful! Please check your email to confirm.';
     }
   });
 }
