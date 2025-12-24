@@ -1,7 +1,9 @@
+// login.js
+
 const form = document.getElementById('login-form');
 const errorDiv = document.getElementById('login-error');
 
-// LOGIN LOGIC
+// LOGIN
 if (form) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -10,8 +12,8 @@ if (form) {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     
-    // Uses the fixed 'supabase' variable
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    // CHANGE: Use 'supabaseClient' here
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     
     if (error) {
       errorDiv.textContent = error.message;
@@ -21,7 +23,7 @@ if (form) {
   });
 }
 
-// SIGN UP LOGIC
+// SIGN UP
 const signupBtn = document.getElementById('signup-btn');
 if (signupBtn) {
   signupBtn.addEventListener('click', async (e) => {
@@ -36,14 +38,14 @@ if (signupBtn) {
       return;
     }
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    // CHANGE: Use 'supabaseClient' here
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
 
     if (error) {
       errorDiv.textContent = error.message;
       return;
     }
 
-    // Immediate Redirect if session exists
     if (data.session) {
       window.location.href = 'main.html';
     } else {
