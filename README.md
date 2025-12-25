@@ -1,53 +1,76 @@
-
 # GLBXTNT ERP System
 
-This is a very basic internal ERP system built with HTML, CSS, vanilla JS, and Supabase (auth + Postgres). You can run it locally or deploy it to GitHub Pages.
+A lightweight, serverless ERP solution designed for internal business operations. Built with **Vanilla JavaScript** and **Supabase**, featuring Role-Based Access Control (RBAC).
 
-## Features
-- Login with roles (Admin, Manager, Consultant, Finance)
-- Employee list
-- Attendance IN/OUT
-- Manual salary entry
-- Bonuses & refunds
-- Finance transactions
-- Audit logs
+## 🚀 Tech Stack
+- **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+)
+- **Backend:** Supabase (PostgreSQL, Auth, Storage, Realtime)
+- **Deployment:** Static Hosting (GitHub Pages / Vercel / Netlify)
 
-## Constraints
-- No backend server
-- No frameworks unless necessary
-- Code is readable and minimal
-- Uses Supabase Row Level Security
+## ✨ Key Modules
 
-## Local Setup Instructions
+### 👥 HR & Workforce
+- **Attendance:** Daily Clock In/Out tracking.
+- **Leave Management:** Request, approve, and track leave balances.
+- **Performance:** Quarterly self-appraisals and manager reviews.
+- **Status:** Live workforce availability dashboard.
 
-1. **Clone the repository**
-	```
-	git clone <your-repo-url>
-	cd glbxtnt erp system
-	```
+### 💰 Finance
+- **Salary:** Payroll processing, bonuses, and salary slips.
+- **Expenses:** Employee reimbursement claims with receipt uploads.
+- **Ledger:** Centralized finance transaction history (Credit/Debit).
 
-2. **Set up Supabase**
-	- Create a Supabase project at [https://supabase.com/](https://supabase.com/)
-	- Run the SQL in `supabase_schema.sql` and `supabase_rls_policies.sql` in the Supabase SQL editor to create tables and security policies.
-	- Get your Supabase project URL and anon key from your Supabase dashboard.
-	- Open `js/supabase.js` and update the `SUPABASE_URL` and `SUPABASE_ANON_KEY` with your values.
+### 🛠️ Operations & Collaboration
+- **Team Chat:** Real-time internal messaging with media support.
+- **Help Desk:** Internal ticketing system for IT/HR support.
+- **Documents:** Secure vault for company policies and files.
+- **Notices:** Admin announcement board.
 
-3. **Run locally**
-	- Open the project folder in VS Code.
-	- Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension.
-	- Right-click `index.html` and select **Open with Live Server**.
-	- Or, open `index.html` directly in your browser (some features may not work due to browser security restrictions).
+### 🛡️ Admin & Security
+- **RBAC:** Roles for Admin, Manager, Finance, and Employee.
+- **Audit Logs:** Track sensitive system actions.
+- **Security:** Row Level Security (RLS) ensures data privacy.
 
-4. **Login and Use**
-	- Use the login page to sign up or log in (Supabase Auth must be enabled).
-	- Test all features: dashboard, employees, attendance, salary, finance, audit logs.
+## 📂 Project Structure
+```text
+├── css/styles.css        # Global Responsive Stylesheet
+├── js/                   # Logic Files
+│   ├── supabase.js       # Database Config
+│   └── [page].js         # Page-specific logic
+├── index.html            # Login Page
+├── main.html             # Dashboard
+└── [modules].html        # Module pages (attendance, salary, chat, etc.)
 
-## Notes
-- Make sure your Supabase Auth and Row Level Security (RLS) are configured as per the SQL files.
-- If you use folders like `js/` or `css/`, add a `.nojekyll` file to the repo root if deploying to GitHub Pages.
 
-## Deployment
-- You can deploy this project to GitHub Pages or any static hosting provider.
+⚙️ Setup Instructions
+Clone the Repository
+git clone <your-repo-url>
 
----
-For any issues, open an issue or contact the maintainer.
+Configure Supabase
+
+Create a project at supabase.com.
+
+Go to the SQL Editor and run the provided schema.sql (Tables, Policies, Triggers).
+
+Enable Storage and create buckets: receipts, company_docs, chat_media.
+
+Connect the App
+
+Open js/supabase.js.
+
+Update SUPABASE_URL and SUPABASE_ANON_KEY from your project settings.
+
+Run Locally
+
+Open index.html using a local server (e.g., VS Code Live Server).
+
+Note: File uploads and Auth require a secure context (localhost or HTTPS).
+
+🔐 Default Roles
+Admin: Full access to Audit, Finance, and Settings.
+
+Manager: Access to Approvals and Performance Reviews.
+
+Finance: Access to Salary and Ledger.
+
+Employee: Restricted to personal history and requests.
