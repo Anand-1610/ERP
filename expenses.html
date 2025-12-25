@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Expense Claims - GLBXTNT ERP</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .status-Pending { background: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; }
+    .status-Approved { background: #cce5ff; color: #004085; padding: 2px 6px; border-radius: 4px; }
+    .status-Rejected { background: #f8d7da; color: #721c24; padding: 2px 6px; border-radius: 4px; }
+    .status-Reimbursed { background: #d4edda; color: #155724; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+    
+    .receipt-link { font-size: 0.9em; text-decoration: underline; color: #007bff; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2>💰 Expense Reimbursement</h2>
+      <a href="main.html">Back to Dashboard</a>
+    </div>
+
+    <div style="background:#fff; padding:20px; border-radius:8px; border:1px solid #ddd; margin-bottom:30px;">
+      <h3>Submit New Claim</h3>
+      <form id="expense-form">
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1;">
+            <label>Category:</label>
+            <select id="category">
+              <option value="Travel">Travel (Flight/Cab)</option>
+              <option value="Food">Food / Client Dinner</option>
+              <option value="Software">Software / Tools</option>
+              <option value="Office Supplies">Office Supplies</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label>Amount:</label>
+            <input type="number" id="amount" placeholder="0.00" required>
+          </div>
+        </div>
+
+        <label>Description:</label>
+        <input type="text" id="desc" placeholder="e.g. Uber to Airport" required>
+
+        <label>Upload Receipt (Image/PDF):</label>
+        <input type="file" id="receipt-file" accept="image/*,application/pdf">
+
+        <button type="submit" style="margin-top:10px;">Submit Claim</button>
+      </form>
+      <div id="form-msg" style="margin-top:10px;"></div>
+    </div>
+
+    <div id="admin-inbox" style="display:none; margin-bottom:30px; border-top:2px dashed #ccc; padding-top:20px;">
+      <h3 style="color:#d9534f;">⚠️ Pending Approvals & Payouts</h3>
+      <div id="inbox-list">Loading...</div>
+    </div>
+
+    <h3>My Claim History</h3>
+    <div id="my-list">Loading...</div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+  <script src="supabase.js"></script>
+  <script src="expenses.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Workforce Status - GLBXTNT ERP</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Status Badges */
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.9em; }
+    
+    .status-Present { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; } /* Green */
+    .status-WFH { background: #cce5ff; color: #004085; border: 1px solid #b8daff; } /* Blue */
+    .status-Leave { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; } /* Yellow */
+    .status-Absent { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; } /* Red */
+    .status-Weekend { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; } /* Grey */
+  </style>
+</head>
+<body>
+  <div class="container" style="max-width: 900px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2>Live Workforce Status</h2>
+      <button onclick="location.reload()" style="padding:5px 10px; font-size:0.9em;">🔄 Refresh</button>
+    </div>
+    
+    <div style="margin-bottom: 20px; color: #666;">
+      Date: <strong id="current-date"></strong>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+      <div style="flex:1; background:#fff; padding:15px; border-radius:8px; text-align:center; border:1px solid #ddd;">
+        <div style="font-size:2em; font-weight:bold; color:#28a745;" id="count-present">-</div>
+        <div style="font-size:0.8em; text-transform:uppercase; color:#666;">Present</div>
+      </div>
+      <div style="flex:1; background:#fff; padding:15px; border-radius:8px; text-align:center; border:1px solid #ddd;">
+        <div style="font-size:2em; font-weight:bold; color:#007bff;" id="count-wfh">-</div>
+        <div style="font-size:0.8em; text-transform:uppercase; color:#666;">WFH</div>
+      </div>
+      <div style="flex:1; background:#fff; padding:15px; border-radius:8px; text-align:center; border:1px solid #ddd;">
+        <div style="font-size:2em; font-weight:bold; color:#ffc107;" id="count-leave">-</div>
+        <div style="font-size:0.8em; text-transform:uppercase; color:#666;">On Leave</div>
+      </div>
+      <div style="flex:1; background:#fff; padding:15px; border-radius:8px; text-align:center; border:1px solid #ddd;">
+        <div style="font-size:2em; font-weight:bold; color:#dc3545;" id="count-absent">-</div>
+        <div style="font-size:0.8em; text-transform:uppercase; color:#666;">Absent</div>
+      </div>
+    </div>
+
+    <div id="status-table">Loading data...</div>
+
+    <div style="margin-top: 40px; border-top: 2px dashed #ccc; padding-top: 20px;">
+      <h3>📅 Upcoming Availability (Next 7 Days)</h3>
+      <div style="overflow-x: auto;">
+        <div id="forecast-table">Loading forecast...</div>
+      </div>
+
+    <br>
+    <a href="main.html">Back to Dashboard</a>
+    </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+  <script src="supabase.js"></script>
+  <script src="status.js"></script>
+</body>
+</html>

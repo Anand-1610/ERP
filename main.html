@@ -3,26 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GLBXTNT ERP Dashboard</title>
-  <link rel="stylesheet" href="styles.css"> </head>
+  <title>GLBXTNT ERP - Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
 <body>
-  <div class="dashboard-container">
-    <h2>Welcome to GLBXTNT ERP</h2>
-    <div id="user-role">Loading role...</div>
-    <nav>
-      <ul id="nav-list">
-        <li><a href="employees.html">Employees</a></li>
-        <li><a href="attendance.html">Attendance</a></li>
-        <li><a href="salary.html">Salary</a></li>
-        <li><a href="finance.html">Finance</a></li>
-        <li><a href="audit.html">Audit Logs</a></li>
-        <li><a href="#" id="logout-btn">Logout</a></li>
-      </ul>
-    </nav>
-    <div id="dashboard-content">
-      <p>Select a module from the navigation above.</p>
+  <div class="container">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h1 id="welcome-msg">Welcome, User</h1>
+      <button id="logout-btn" style="background:#dc3545; font-size:0.8em;">Logout</button>
     </div>
+    
+    <div id="notice-board" style="background: #fff; border: 1px solid #ddd; border-left: 5px solid #007bff; padding: 15px; margin-bottom: 25px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; color:#007bff;">📢 Announcements</h3>
+        <button id="post-notice-btn" style="display:none; padding: 4px 10px; font-size: 0.8em; cursor:pointer;">+ Post News</button>
+      </div>
+      <div id="notice-list" style="margin-top: 10px; max-height: 150px; overflow-y: auto;">
+        Loading updates...
+      </div>
+    </div>
+
+    <ul class="menu-list">
+      <li><a href="attendance.html">⏱️ Attendance</a></li>
+      <li><a href="leave.html">🗓️ Leave Management</a></li>
+      <li><a href="status.html" style="color:#d9534f; font-weight:bold;">🔴 Live Workforce Status</a></li>
+      <li><a href="salary.html">💵 Salary & Slips</a></li>
+      <li><a href="expenses.html">💰 Expense Claims</a></li>
+      <li><a href="helpdesk.html">🎧 Help Desk</a></li>
+      <li><a href="documents.html">📂 Document Vault</a></li>
+      <li><a href="finance.html" id="finance-link" style="display:none;">📈 Company Finance</a></li>
+      <li><a href="performance.html">⭐ Performance & Appraisals</a></li>
+      <li><a href="audit.html" id="audit-link" style="display:none;">🛡️ Audit Logs</a></li>
+    </ul>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
-  <script src="supabase.js"></script>   <script src="dashboard.js"></script>  </body>
+  <script src="supabase.js"></script>
+  <script src="main.js"></script>
+</body>
 </html>
