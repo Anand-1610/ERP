@@ -3,23 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GLBXTNT ERP Login</title>
+  <title>Login - GLBXTNT ERP</title>
   <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <style> .hidden { display: none; } </style>
 </head>
-<body>
+<body class="login-page">
   <div class="login-container">
-    <h2>Login</h2>
-    <form id="login-form">
-      <input type="email" id="email" placeholder="Email" required><br>
-      <input type="password" id="password" placeholder="Password" required><br>
-      <button type="submit">Login</button>
-      <button type="button" id="signup-btn">Sign Up</button>
-    </form>
-    <div id="login-error" class="error"></div>
+    <h2>GLBXTNT ERP</h2>
+    <p id="sub-text" style="color:#6b7280; font-size:0.95rem;">Secure Employee Portal</p>
+    
+    <div id="login-box">
+      <form id="auth-form">
+        <div id="name-field-container" class="hidden">
+          <input type="text" id="full-name" placeholder="Full Name (e.g. John Doe)" style="border-color:#059669;">
+        </div>
+
+        <input type="email" id="email" placeholder="Email Address" required>
+        <input type="password" id="password" placeholder="Password" required>
+        
+        <button type="submit" id="submit-btn">Login</button>
+      </form>
+
+      <div style="display:flex; justify-content:space-between; margin-top:15px;">
+        <button type="button" id="toggle-mode-btn" class="secondary" style="border:none; background:none; cursor:pointer;">New here? Create Account</button>
+        <button type="button" id="forgot-btn" class="secondary" style="border:none; color:#059669; background:none; cursor:pointer;">Forgot Password?</button>
+      </div>
+    </div>
+
+    <div id="forgot-form" class="hidden">
+      <h3 style="color:#d9534f; margin-top:0;">Reset Request</h3>
+      <p style="font-size:0.9em; color:#666;">Enter your email. Admin must approve reset.</p>
+      <form id="reset-request-form">
+        <input type="email" id="reset-email" placeholder="Your Email Address" required>
+        <button type="submit" style="background:#d9534f;">Request Reset</button>
+      </form>
+      <button id="back-to-login" class="secondary" style="margin-top:15px; border:none; text-decoration:underline; background:none; cursor:pointer;">Back to Login</button>
+    </div>
+    
+    <div id="auth-error" class="error" style="margin-top:15px; font-size:0.9em; min-height: 20px;"></div>
+    <div id="login-box">...</div>
+    <div id="forgot-form" class="hidden">...</div>
+
+    <div id="update-password-box" class="hidden">
+      <h3 style="color:#059669; margin-top:0;">Set New Password</h3>
+      <p style="font-size:0.9em; color:#666;">Secure your account with a new password.</p>
+      
+      <form id="update-pass-form">
+        <input type="password" id="new-password" placeholder="New Password" required>
+        <button type="submit" style="background:#059669;">Update Password</button>
+      </form>
+    </div>
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
-  
   <script src="supabase.js"></script>
   <script src="login.js"></script>
 </body>
