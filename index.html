@@ -6,7 +6,49 @@
   <title>Login - GLBXTNT ERP</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
-  <style> .hidden { display: none; } </style>
+  <style> 
+    .hidden { display: none; } 
+    
+    /* Captcha Specific Styles */
+    .captcha-box {
+      background: #f9fafb;
+      padding: 12px;
+      border-radius: 6px;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #e5e7eb;
+    }
+    .captcha-question {
+      font-weight: 700;
+      color: #374151;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+    .captcha-input {
+      width: 70px !important; /* Force width override */
+      text-align: center;
+      margin: 0 !important;
+      padding: 8px !important;
+      font-weight: bold;
+      border: 2px solid #d1d5db;
+    }
+    .captcha-refresh {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #6b7280;
+      width: auto;
+      padding: 0 5px;
+      transition: transform 0.2s;
+    }
+    .captcha-refresh:hover {
+      color: #2563eb;
+      transform: rotate(180deg);
+    }
+  </style>
 </head>
 <body class="login-page">
   <div class="login-container">
@@ -22,6 +64,14 @@
         <input type="email" id="email" placeholder="Email Address" required>
         <input type="password" id="password" placeholder="Password" required>
         
+        <div id="captcha-container" class="captcha-box">
+            <span class="captcha-question">
+                <span id="captcha-num1">?</span> + <span id="captcha-num2">?</span> = 
+            </span>
+            <input type="number" id="captcha-input" placeholder="?" required class="captcha-input">
+            <button type="button" id="refresh-captcha" class="captcha-refresh" title="Get new numbers">🔄</button>
+        </div>
+
         <button type="submit" id="submit-btn">Login</button>
       </form>
 
@@ -41,9 +91,7 @@
       <button id="back-to-login" class="secondary" style="margin-top:15px; border:none; text-decoration:underline; background:none; cursor:pointer;">Back to Login</button>
     </div>
     
-    <div id="auth-error" class="error" style="margin-top:15px; font-size:0.9em; min-height: 20px;"></div>
-    <div id="login-box"></div>
-    <div id="forgot-form" class="hidden">...</div>
+    <div id="auth-error" class="error" style="margin-top:15px; font-size:0.9em; min-height: 20px; text-align: center;"></div>
 
     <div id="update-password-box" class="hidden">
       <h3 style="color:#059669; margin-top:0;">Set New Password</h3>
@@ -60,5 +108,4 @@
   <script src="supabase.js"></script>
   <script src="login.js"></script>
 </body>
-
 </html>
