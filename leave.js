@@ -9,6 +9,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   const { data: emp } = await supabaseClient.from('employees').select('id, name, role').eq('email', user.email).single();
   const isAdmin = ["Admin", "Manager"].includes(emp.role);
 
+  // --- HELPER: GET IST DATE STRING (YYYY-MM-DD) ---
+  // This forces the system to see dates as they are in India, ignoring local browser time
+  const toIST = (dateObj) => {
+    return dateObj.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); 
+  };
+
   // 1. FETCH BALANCES
   const { data: bal } = await supabaseClient.from('leave_balances').select('*').eq('employee_id', emp.id).maybeSingle();
   if (bal) {
@@ -17,26 +23,42 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('bal-earned').textContent = bal.earned_left;
   }
 
-  // 2. VIEW SETUP
-  loadMyHistory(emp.id);
-
-  // UI CLEANUP: Hide Admin Sections for regular users
-  const adminSection = document.getElementById('admin-section');
-  const allHistorySection = document.getElementById('all-history-section');
-
-  if (isAdmin) {
-    // Only Show if Admin/Manager
-    adminSection.style.display = 'block';
-    allHistorySection.style.display = 'block';
-    loadPendingRequests();
-    loadAllHistory();
-  } else {
-    // Force Hide
-    adminSection.style.display = 'none';
-    allHistorySection.style.display = 'none';
+  // 2. FETCH HOLIDAYS
+  const { data: holidays } = await supabaseClient.from('holidays').select('*').order('date', {ascending: true});
+  const holidayList = holidays || []; 
+  
+  // Render Holidays (Admin View)
+  const holidayContainer = document.getElementById('holiday-list');
+  if (holidayContainer) {
+    if (holidayList.length > 0) {
+      let hHtml = '<strong>Upcoming Holidays: </strong>';
+      holidayList.forEach(h => {
+          hHtml += `<span class="holiday-tag">${h.date} (${h.name}) ${isAdmin ? `<span style="cursor:pointer; color:red; margin-left:5px;" onclick="deleteHoliday('${h.id}')">×</span>` : ''}</span>`;
+      });
+      holidayContainer.innerHTML = hHtml;
+    } else {
+      holidayContainer.innerHTML = '<span style="color:#777;">No holidays declared.</span>';
+    }
   }
 
-  // 3. SUBMIT REQUEST
+  // 3. UI SETUP
+  loadMyHistory(emp.id);
+
+  if (isAdmin) {
+    const adminSec = document.getElementById('admin-section');
+    if(adminSec) adminSec.style.display = 'block';
+    
+    const allHist = document.getElementById('all-history-section');
+    if(allHist) allHist.style.display = 'block';
+    
+    const adminHol = document.getElementById('admin-holiday-section');
+    if(adminHol) adminHol.style.display = 'block';
+    
+    loadPendingRequests();
+    loadAllHistory();
+  }
+
+  // 4. SUBMIT REQUEST (IST FIXED)
   document.getElementById('leave-form').onsubmit = async (e) => {
     e.preventDefault();
     const type = document.getElementById('leave-type').value;
@@ -44,13 +66,43 @@ window.addEventListener('DOMContentLoaded', async () => {
     const end = document.getElementById('end-date').value;
     const reason = document.getElementById('reason').value;
     
-    // Balance Check
-    const diffDays = Math.ceil(Math.abs(new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24)) + 1; 
+    // --- IST CALCULATION LOGIC ---
+    let effectiveDays = 0;
+    
+    // Initialize dates at NOON IST to avoid midnight boundary issues
+    // "T12:00:00+05:30" forces the browser to treat this input as Indian Noon
+    let current = new Date(start + "T12:00:00+05:30"); 
+    const stop = new Date(end + "T12:00:00+05:30");
+    let holidaysHit = [];
 
-    if (bal) {
-      if (type === 'Sick' && bal.sick_left < diffDays) { alert(`Not enough Sick Leave!`); return; }
-      if (type === 'Casual' && bal.casual_left < diffDays) { alert(`Not enough Casual Leave!`); return; }
+    while (current <= stop) {
+        // Convert current step to YYYY-MM-DD string in IST
+        const dateStr = toIST(current);
+        
+        // Check holiday list
+        const isHoliday = holidayList.find(h => h.date === dateStr);
+        
+        if (isHoliday) {
+            holidaysHit.push(`${dateStr} (${isHoliday.name})`);
+        } else {
+            effectiveDays++;
+        }
+        
+        // Add 1 day
+        current.setDate(current.getDate() + 1);
     }
+    // -----------------------------
+    
+    // Balance Check
+    if (bal) {
+      if (type === 'Sick' && bal.sick_left < effectiveDays) { alert(`Not enough Sick Leave! (Need ${effectiveDays})`); return; }
+      if (type === 'Casual' && bal.casual_left < effectiveDays) { alert(`Not enough Casual Leave! (Need ${effectiveDays})`); return; }
+    }
+
+    let confirmMsg = `Requesting ${effectiveDays} days of ${type} leave?`;
+    if (holidaysHit.length > 0) confirmMsg += `\n\n(Excluded ${holidaysHit.length} holidays)`;
+    
+    if(!confirm(confirmMsg)) return;
 
     const btn = e.target.querySelector('button');
     btn.textContent = "Processing..."; btn.disabled = true;
@@ -63,41 +115,77 @@ window.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('form-message').innerHTML = `<span style="color:red">${error.message}</span>`;
       btn.textContent = "Submit Request"; btn.disabled = false;
     } else {
-      openEmailDraft(ADMIN_EMAIL, `New Leave Request: ${emp.name}`, `I requested ${type} from ${start} to ${end}.\nReason: ${reason}`);
-      alert("Saved! Please send the email.");
+      openEmailDraft(ADMIN_EMAIL, `New Leave Request: ${emp.name}`, `I requested ${type} from ${start} to ${end}.\nActual Days: ${effectiveDays}\nReason: ${reason}`);
       location.reload();
     }
   };
 
-  // --- RENDERERS ---
+  // --- HOLIDAY ACTIONS (IST FIXED) ---
+  window.addHoliday = async () => {
+    const startStr = document.getElementById('holiday-start').value;
+    const endStr = document.getElementById('holiday-end').value || startStr; 
+    const name = document.getElementById('holiday-name').value.trim();
+
+    if (!startStr || !name) return alert("Enter Date and Name");
+    
+    // Use Noon IST for loop safety
+    let current = new Date(startStr + "T12:00:00+05:30");
+    const stop = new Date(endStr + "T12:00:00+05:30");
+    
+    if (stop < current) return alert("End date before Start date");
+
+    const btn = document.querySelector('#admin-holiday-section button');
+    btn.textContent = "Processing..."; btn.disabled = true;
+
+    const inserts = [];
+    while (current <= stop) {
+        inserts.push({ date: toIST(current), name: name });
+        current.setDate(current.getDate() + 1);
+    }
+
+    const { error } = await supabaseClient.from('holidays').insert(inserts);
+    if (error) { 
+        alert("Error: " + error.message); 
+        btn.textContent="Declare"; 
+        btn.disabled=false; 
+    } else { 
+        location.reload(); 
+    }
+  };
+
+  window.deleteHoliday = async (id) => {
+    if(confirm("Delete this holiday?")) {
+        await supabaseClient.from('holidays').delete().eq('id', id);
+        location.reload();
+    }
+  };
+
+  // --- DATA LOADING FUNCTIONS ---
 
   async function loadPendingRequests() {
     const { data: requests } = await supabaseClient.from('leaves').select('*, employees(name, role, email)').eq('status', 'Pending').order('created_at');
     const container = document.getElementById('pending-list');
     
-    if (!requests || requests.length === 0) { container.innerHTML = '<p style="color:#777; font-style:italic;">No pending requests.</p>'; return; }
+    if (!requests || requests.length === 0) { container.innerHTML = '<p style="color:#777;">No pending requests.</p>'; return; }
 
     const { data: me } = await supabaseClient.from('employees').select('role').eq('email', session.user.email).single();
 
     let html = '';
     requests.forEach(req => {
       const days = (new Date(req.end_date) - new Date(req.start_date))/(1000*60*60*24) + 1;
-      const canAct = (me.role === 'Admin') || (me.role === 'Manager' && req.employees?.role !== 'Manager' && req.employees?.role !== 'Admin');
-
+      
       html += `<div style="background:#fff; border-left:4px solid #ffc107; padding:15px; margin-bottom:15px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
         <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
           <strong>${req.employees?.name}</strong>
           <span style="font-size:0.8em; background:#eee; padding:2px 8px; border-radius:10px;">${req.employees?.role}</span>
         </div>
-        <div style="color:#555;">${req.leave_type} (${days} Days)</div>
+        <div style="color:#555;">${req.leave_type} (${Math.round(days)} Days Span)</div>
         <div style="font-size:0.9em; color:#777;">${req.start_date} to ${req.end_date}</div>
         <div style="font-style:italic; color:#666; margin:5px 0;">"${req.reason}"</div>
         
         <div style="margin-top:10px;">
-          ${canAct ? `
             <button onclick="updateStatus('${req.id}', 'Approved', '${req.employees?.email}')" style="background:#28a745; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Approve</button>
             <button onclick="updateStatus('${req.id}', 'Rejected', '${req.employees?.email}')" style="background:#dc3545; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; margin-left:5px;">Reject</button>
-          ` : `<span style="font-size:0.8em; color:#dc3545;">🔒 Admin Only</span>`}
         </div>
       </div>`;
     });
@@ -122,14 +210,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (showName) html += '<th>Name</th>';
     html += '<th>Type</th><th>Dates</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead><tbody>';
 
-    const today = new Date().toISOString().split('T')[0];
+    // FIX: Get Today in IST YYYY-MM-DD
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
     list.forEach(row => {
-      // LOGIC: CANCEL
       const isActive = row.end_date >= today;
       const canCancel = isActive && (row.status === 'Pending' || row.status === 'Approved');
-
-      // LOGIC: DELETE
       const isExpired = row.end_date < today;
       const canDelete = row.status === 'Cancelled' || row.status === 'Rejected' || (row.status === 'Approved' && isExpired);
 
@@ -148,7 +234,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     container.innerHTML = html;
   }
 
-  // --- ACTIONS ---
+  // --- GLOBAL ACTIONS ---
 
   window.updateStatus = async (id, newStatus, targetEmail) => {
     if (!confirm(`Mark as ${newStatus}?`)) return;

@@ -1,4 +1,4 @@
-// Attendance Logic - Fixed & Debuggable
+// Attendance Logic - Fixed & Debuggable with IST Support
 window.addEventListener('DOMContentLoaded', async () => {
   try {
     // 1. Check Session
@@ -26,7 +26,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     
     const employeeId = emp.id;
-    const today = new Date().toISOString().split('T')[0];
+    
+    // --- FORCE IST DATE ---
+    // This ensures "today" is always based on Indian Time, regardless of server location
+    const getISTDate = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const today = getISTDate(); // Returns "YYYY-MM-DD"
+    // ----------------------
     
     // 3. CHECK FOR LEAVE (Blocker)
     const { data: activeLeave, error: leaveError } = await supabaseClient
@@ -82,23 +87,29 @@ window.addEventListener('DOMContentLoaded', async () => {
                    <div style="font-size:3rem;">👋</div>
                    <p>Good Morning! Ready to start?</p>
                  </div>
-                 <button id="in-btn" class="btn" style="width:100%; height:50px; font-size:1.1rem;">CLOCK IN</button>
+                 <button id="in-btn" class="btn" style="width:100%; height:50px; font-size:1.1rem;">CLOCK IN (IST)</button>
                  <div id="action-error" class="error" style="margin-top:10px; color:red;"></div>`;
       } else if (!att.out_time) {
         // Checked In
+        // Display Time in IST
+        const inTimeIST = new Date(att.in_time).toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata', hour:'2-digit', minute:'2-digit'});
+        
         html += `<div style="text-align:center; margin-bottom:20px; padding:15px; background:#f0fdf4; border-radius:8px;">
-                    <div style="color:#666; font-size:0.9rem;">Started at</div>
-                    <div style="font-size:2rem; font-weight:bold; color:var(--primary);">${new Date(att.in_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                    <div style="color:#666; font-size:0.9rem;">Started at (IST)</div>
+                    <div style="font-size:2rem; font-weight:bold; color:var(--primary);">${inTimeIST}</div>
                  </div>
                  <button id="out-btn" class="danger" style="width:100%; height:50px; font-size:1.1rem;">CLOCK OUT</button>
                  <div id="action-error" class="error" style="margin-top:10px; color:red;"></div>`;
       } else {
         // Done
+        const inTimeIST = new Date(att.in_time).toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata', hour:'2-digit', minute:'2-digit'});
+        const outTimeIST = new Date(att.out_time).toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata', hour:'2-digit', minute:'2-digit'});
+
         html += `<div style="text-align:center; padding:20px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
                   <div style="font-size:1.1rem; margin-bottom:5px;">✅ Day Complete</div>
                   <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0;">
-                    <div><small>IN</small><br><strong>${new Date(att.in_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</strong></div>
-                    <div><small>OUT</small><br><strong>${new Date(att.out_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</strong></div>
+                    <div><small>IN</small><br><strong>${inTimeIST}</strong></div>
+                    <div><small>OUT</small><br><strong>${outTimeIST}</strong></div>
                   </div>
                   <div style="background:#dcfce7; color:#166534; padding:5px; border-radius:4px; font-weight:bold;">Total: ${getDuration(att.in_time, att.out_time)}</div>
                  </div>`;
@@ -146,16 +157,19 @@ window.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('today-attendance').innerHTML = `<p style="color:red">Error loading live status: ${allErr.message}</p>`;
       } else if (allAtt && allAtt.length > 0) {
         let table = `<table style="font-size:0.9em;">
-          <tr style="background:#f9fafb;"><th>Name</th><th>IN</th><th>OUT</th><th>Total</th></tr>`;
+          <tr style="background:#f9fafb;"><th>Name</th><th>IN (IST)</th><th>OUT (IST)</th><th>Total</th></tr>`;
         
         allAtt.forEach(r => {
           const duration = getDuration(r.in_time, r.out_time);
           const empName = r.employees ? r.employees.name : 'Unknown';
           
+          const tIn = r.in_time ? new Date(r.in_time).toLocaleTimeString('en-US', {timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit'}) : '-';
+          const tOut = r.out_time ? new Date(r.out_time).toLocaleTimeString('en-US', {timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit'}) : '-';
+
           table += `<tr>
             <td><strong>${empName}</strong></td>
-            <td>${r.in_time ? new Date(r.in_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '-'}</td>
-            <td>${r.out_time ? new Date(r.out_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '-'}</td>
+            <td>${tIn}</td>
+            <td>${tOut}</td>
             <td style="font-weight:bold; color:${duration === '-' ? '#999' : '#059669'}">${duration}</td>
           </tr>`;
         });

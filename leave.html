@@ -6,32 +6,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Smooth & Clear Table Design */
+    /* ... (Keep your existing styles) ... */
     .history-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
     .history-table th { text-align: left; color: #666; font-size: 0.9em; padding: 10px; border-bottom: 2px solid #eee; }
     .history-table td { background: #fff; padding: 15px; font-size: 0.95em; vertical-align: middle; }
-    .history-table tr { box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
-    .history-table tr:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-    
-    /* Rounded Corners for Rows */
-    .history-table tr td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-    .history-table tr td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-
-    /* Badges */
-    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; text-transform: uppercase; }
     .st-Pending { background: #fff3cd; color: #856404; }
     .st-Approved { background: #d4edda; color: #155724; }
     .st-Rejected { background: #f8d7da; color: #721c24; }
     .st-Cancelled { background: #e2e3e5; color: #383d41; text-decoration: line-through; }
-
-    /* Buttons */
-    .btn-action { border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; transition: 0.2s; }
-    .btn-cancel { background: #ffc107; color: #333; }
-    .btn-cancel:hover { background: #e0a800; }
-    .btn-delete { background: #fff; color: #dc3545; border: 1px solid #dc3545; }
-    .btn-delete:hover { background: #dc3545; color: #fff; }
-
     .balance-box { flex: 1; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    
+    /* New Style for Holiday List */
+    .holiday-tag { display: inline-block; background: #e0f2f1; color: #00695c; padding: 5px 10px; border-radius: 4px; margin: 2px; font-size: 0.9em; border: 1px solid #b2dfdb; }
   </style>
 </head>
 <body style="background-color: #f8f9fa;">
@@ -41,39 +28,61 @@
       <a href="main.html" style="text-decoration:none; color:#555;">&larr; Dashboard</a>
     </div>
     
-    <div id="request-section">
-      <div style="display:flex; gap:15px; margin-bottom:25px;">
-        <div class="balance-box" style="background:linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
-          <small style="color:#0d47a1;">SICK LEAVE</small><br><strong id="bal-sick" style="font-size:1.8em; color:#0d47a1;">-</strong>
-        </div>
-        <div class="balance-box" style="background:linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
-          <small style="color:#1b5e20;">CASUAL LEAVE</small><br><strong id="bal-casual" style="font-size:1.8em; color:#1b5e20;">-</strong>
-        </div>
-        <div class="balance-box" style="background:linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);">
-          <small style="color:#e65100;">EARNED LEAVE</small><br><strong id="bal-earned" style="font-size:1.8em; color:#e65100;">-</strong>
-        </div>
+    <div style="display:flex; gap:15px; margin-bottom:25px;">
+      <div class="balance-box" style="background:linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+        <small style="color:#0d47a1;">SICK LEAVE</small><br><strong id="bal-sick" style="font-size:1.8em; color:#0d47a1;">-</strong>
       </div>
+      <div class="balance-box" style="background:linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+        <small style="color:#1b5e20;">CASUAL LEAVE</small><br><strong id="bal-casual" style="font-size:1.8em; color:#1b5e20;">-</strong>
+      </div>
+      <div class="balance-box" style="background:linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);">
+        <small style="color:#e65100;">EARNED LEAVE</small><br><strong id="bal-earned" style="font-size:1.8em; color:#e65100;">-</strong>
+      </div>
+    </div>
 
-      <div style="background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
-        <h3 style="margin-top:0;">Request New Leave</h3>
-        <form id="leave-form" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-          <div style="grid-column: span 2;">
-            <label>Leave Type</label>
-            <select id="leave-type" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;">
-              <option value="Sick">Sick Leave</option>
-              <option value="Casual">Casual Leave</option>
-              <option value="Earned">Earned Leave</option>
-              <option value="Unpaid">Unpaid Leave</option>
-              <option value="Work From Home">Work From Home</option>
-            </select>
-          </div>
-          <div><label>From</label><input type="date" id="start-date" required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;"></div>
-          <div><label>To</label><input type="date" id="end-date" required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;"></div>
-          <div style="grid-column: span 2;"><label>Reason</label><input type="text" id="reason" placeholder="Brief reason..." required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;"></div>
-          <div style="grid-column: span 2;"><button type="submit" style="width:100%; padding:12px; background:#007bff; color:#fff; border:none; border-radius:6px; font-size:1em; cursor:pointer;">Submit Request</button></div>
-        </form>
-        <div id="form-message" style="margin-top: 10px;"></div>
-      </div>
+    <div style="background:#fff; padding:25px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px;">
+      <h3 style="margin-top:0;">Request New Leave</h3>
+      <div id="holiday-alert" style="display:none; padding:10px; background:#e0f7fa; color:#006064; border-radius:6px; margin-bottom:15px; border:1px solid #b2ebf2;"></div>
+      
+      <form id="leave-form" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+        <div style="grid-column: span 2;">
+          <label>Leave Type</label>
+          <select id="leave-type" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;">
+            <option value="Sick">Sick Leave</option>
+            <option value="Casual">Casual Leave</option>
+            <option value="Earned">Earned Leave</option>
+            <option value="Unpaid">Unpaid Leave</option>
+            <option value="Work From Home">Work From Home</option>
+          </select>
+        </div>
+        <div><label>From</label><input type="date" id="start-date" required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;"></div>
+        <div><label>To</label><input type="date" id="end-date" required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;"></div>
+        <div style="grid-column: span 2;"><label>Reason</label><input type="text" id="reason" placeholder="Brief reason..." required style="width:100%; padding:10px; border-radius:6px; border:1px solid #ddd;"></div>
+        <div style="grid-column: span 2;"><button type="submit" style="width:100%; padding:12px; background:#007bff; color:#fff; border:none; border-radius:6px; font-size:1em; cursor:pointer;">Submit Request</button></div>
+      </form>
+      <div id="form-message" style="margin-top: 10px;"></div>
+    </div>
+
+    <div id="admin-holiday-section" style="display:none; background:#fff; padding:20px; border-radius:8px; border:1px solid #ffeeba; margin-bottom:30px;">
+        <h3 style="margin-top:0; color:#856404;">📅 Holiday Management (Admin)</h3>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:10px;">
+            <div>
+                <label style="font-size:0.9em; color:#666;">From Date:</label>
+                <input type="date" id="holiday-start" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; box-sizing: border-box;">
+            </div>
+            <div>
+                <label style="font-size:0.9em; color:#666;">To Date (Optional):</label>
+                <input type="date" id="holiday-end" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:5px; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="holiday-name" placeholder="Holiday Name (e.g. Diwali Break)" style="flex:2; padding:10px; border:1px solid #ddd; border-radius:5px;">
+            <button onclick="addHoliday()" style="flex:1; background:#28a745; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">Declare</button>
+        </div>
+
+        <div id="holiday-list" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">Loading holidays...</div>
     </div>
 
     <div id="admin-section" style="display:none; margin-top:30px;">
