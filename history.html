@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Master History - GLBXTNT ERP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Tab Navigation Styles */
+    .history-nav { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+    .nav-btn { padding: 10px 20px; border: none; background: #f1f1f1; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; color: #555; transition: 0.2s; }
+    .nav-btn:hover { background: #e2e6ea; }
+    .nav-btn.active { background: #007bff; color: white; box-shadow: 0 2px 5px rgba(0,123,255,0.3); }
+
+    /* Data Table Styles */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.9em; background: #fff; }
+    .data-table th { background: #f8f9fa; text-align: left; padding: 12px; border-bottom: 2px solid #dee2e6; color: #495057; white-space: nowrap; }
+    .data-table td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+    .data-table tr:hover { background-color: #fdfdfe; }
+    
+    /* Tracker Specific Grid Colors */
+    .cell-p { background: #d4edda; color: #155724; text-align: center; font-weight: bold; } /* Present */
+    .cell-a { background: #f8d7da; color: #721c24; text-align: center; font-weight: bold; } /* Absent */
+    .cell-h { background: #e2e3e5; color: #383d41; text-align: center; font-weight: bold; } /* Holiday */
+    .cell-sl { background: #fff3cd; color: #856404; text-align: center; font-weight: bold; } /* Sick Leave */
+    .cell-cl { background: #fff3cd; color: #856404; text-align: center; font-weight: bold; } /* Casual Leave */
+    .cell-w { background: #cce5ff; color: #004085; text-align: center; font-weight: bold; } /* WFH */
+    .cell-l { background: #ffeeba; color: #856404; text-align: center; font-weight: bold; } /* Other Leave */
+
+    /* Status Colors */
+    .st-Green { color: #28a745; font-weight: bold; }
+    .st-Red { color: #dc3545; font-weight: bold; }
+    .st-Blue { color: #007bff; font-weight: bold; }
+    .st-Orange { color: #fd7e14; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container" style="max-width: 1400px;"> 
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h2>📜 Company Master Records</h2>
+      <a href="main.html" style="text-decoration:none; color:#555;">&larr; Back to Dashboard</a>
+    </div>
+
+    <div class="history-nav">
+      <button class="nav-btn active" onclick="loadTab('summary')">📊 Monthly Summary (Payroll)</button>
+      <button class="nav-btn" onclick="loadTab('tracker')">📅 Master Tracker (Muster Roll)</button>
+      
+      <button class="nav-btn" onclick="loadTab('attendance')">⏱️ Attendance Log</button>
+      <button class="nav-btn" onclick="loadTab('leaves')">🗓️ Leave History</button>
+      <button class="nav-btn" onclick="loadTab('salary')">💵 Salary History</button>
+      <button class="nav-btn" onclick="loadTab('finance')">📈 Finance Ledger</button>
+      <button class="nav-btn" onclick="loadTab('expenses')">💰 Expenses</button>
+      <button class="nav-btn" onclick="loadTab('employees')">👥 Employee Database</button>
+      <button class="nav-btn" onclick="loadTab('audit')">🛡️ Audit Logs</button>
+    </div>
+
+    <div style="display:flex; gap:15px; margin-bottom:15px; align-items:center; background:#f9f9f9; padding:10px; border-radius:8px;">
+        <div id="month-control">
+            <label style="font-weight:bold; margin-right:5px; color:#555;">Select Month:</label>
+            <input type="month" id="month-picker" style="padding:8px; border:1px solid #ccc; border-radius:4px; cursor:pointer;">
+        </div>
+
+        <div style="flex:1;"></div> <input type="text" id="search-input" placeholder="Search (Name, Date, ID)..." style="padding:8px; width:250px; border:1px solid #ccc; border-radius:4px;">
+        <button onclick="exportCurrentView()" style="background:#28a745; color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-weight:bold;">📥 Export CSV</button>
+    </div>
+
+    <div id="data-container" style="overflow-x:auto; background:white; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.05); min-height:400px;">
+      <div style="padding:40px; text-align:center; color:#777;">Loading data...</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+  <script src="supabase.js"></script>
+  <script src="history.js"></script>
+</body>
+</html>

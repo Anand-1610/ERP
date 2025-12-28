@@ -1,34 +1,167 @@
+/* GLOBAL RESET & TYPOGRAPHY */
+:root {
+  --primary: #0d6efd;
+  --danger: #dc3545;
+  --success: #198754;
+  --dark: #212529;
+  --light: #f8f9fa;
+  --border: #dee2e6;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: #f3f4f6; /* Light Grey Background */
   margin: 0;
-  padding: 0;
+  padding: 20px;
+  color: #333;
 }
-.login-container {
-  background: #fff;
-  max-width: 350px;
-  margin: 80px auto;
-  padding: 2em;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+/* MAIN CONTAINER - PREVENTS EXTREME WIDE SCREENS */
+.container {
+  max-width: 900px; /* Limits width on big monitors */
+  margin: 0 auto;   /* Centers the container */
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
 }
-input, button {
-  width: 100%;
-  padding: 0.7em;
-  margin: 0.5em 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+
+/* HEADER SECTION */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
 }
-button {
-  background: #007bff;
-  color: #fff;
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--dark);
+}
+
+#logout-btn {
+  background-color: var(--danger);
+  color: white;
   border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
   cursor: pointer;
+  transition: opacity 0.2s;
 }
-button:hover {
-  background: #0056b3;
+
+#logout-btn:hover {
+  opacity: 0.9;
 }
-.error {
-  color: #c00;
-  margin-top: 1em;
+
+/* NOTICE BOARD CARD */
+#notice-board {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--primary) !important; /* Force Blue Stripe */
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.notice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+#post-notice-btn {
+  background: #e9ecef;
+  border: 1px solid #ced4da;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: bold;
+  cursor: pointer;
+  color: #495057;
+}
+
+#post-notice-btn:hover {
+  background: #dee2e6;
+}
+
+/* MENU GRID SYSTEM - THE BIG VISUAL UPGRADE */
+.menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  /* Auto-fit columns: Minimum 260px wide, allow stretching */
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+  gap: 15px;
+}
+
+.menu-list li {
+  margin: 0;
+}
+
+/* MENU LINKS AS CARDS */
+.menu-list a {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--dark);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  height: 100%; /* Ensures all cards in a row are same height */
+}
+
+.menu-list a:hover {
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-color: var(--primary);
+  background-color: #f8fbff;
+}
+
+/* SPECIAL LINK STYLES (Overrides) */
+#history-link {
+  border-left: 4px solid #6f42c1;
+  background: #fdfaff;
+}
+#status-link {
+  color: #d9534f;
+}
+
+/* RESPONSIVE MEDIA QUERIES */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+  
+  .container {
+    padding: 15px;
+  }
+
+  .header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  #logout-btn {
+    width: 100%;
+  }
+
+  .menu-list {
+    grid-template-columns: 1fr; /* Stack 1 column on mobile */
+  }
 }

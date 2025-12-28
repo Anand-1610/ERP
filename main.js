@@ -21,6 +21,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (emp.role === "Admin") {
       if(document.getElementById('audit-link')) document.getElementById('audit-link').style.display = 'block';
     }
+    if (emp.role === "Admin") {
+      if(document.getElementById('audit-link')) document.getElementById('audit-link').style.display = 'block';
+      // ADD THIS LINE:
+      if(document.getElementById('history-link')) document.getElementById('history-link').style.display = 'block';
+    }
+
 
     // --- NOTICE BOARD LOGIC ---
     const { data: notices } = await supabaseClient
