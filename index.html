@@ -6,48 +6,194 @@
   <title>Login - GLBXTNT ERP</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
-  <style> 
-    .hidden { display: none; } 
-    
-    /* Captcha Specific Styles */
-    .captcha-box {
-      background: #f9fafb;
-      padding: 12px;
+  <style>
+    /* =========================================
+       1. GLOBAL RESET & LAYOUT
+       ========================================= */
+    :root {
+      --primary: #059669;       /* Emerald Green */
+      --primary-hover: #047857;
+      --bg-color: #f3f4f6;      /* Light Gray Background */
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --radius: 8px;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    * { box-sizing: border-box; }
+
+    body.login-page {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;       /* Center Vertically */
+      justify-content: center; /* Center Horizontally */
+      align-items: center;
+    }
+
+    /* =========================================
+       2. LOGIN BOX (THE CARD)
+       ========================================= */
+    .login-container {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 400px; /* Professional Compact Width */
+      padding: 40px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    h2 {
+      margin: 0 0 5px 0;
+      color: #111827;
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    #sub-text {
+      margin-bottom: 25px;
+    }
+
+    /* =========================================
+       3. FORMS & INPUTS
+       ========================================= */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border);
       border-radius: 6px;
-      margin: 15px 0;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      background-color: #f9fafb;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    /* Main Action Button */
+    button[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 5px;
+    }
+
+    button[type="submit"]:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Secondary Text Buttons */
+    .secondary {
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      transition: color 0.2s;
+      padding: 0;
+    }
+    .secondary:hover {
+      text-decoration: underline;
+      color: var(--primary-hover) !important;
+    }
+
+    /* =========================================
+       4. CAPTCHA STYLING
+       ========================================= */
+    .captcha-box {
+      background: #f3f4f6; /* Distinct gray background */
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 10px 15px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border: 1px solid #e5e7eb;
+      margin-top: 5px;
     }
+
     .captcha-question {
+      font-family: monospace; 
+      font-size: 1.2rem;
       font-weight: 700;
       color: #374151;
-      font-size: 1.1rem;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
     }
-    .captcha-input {
-      width: 70px !important; /* Force width override */
+
+    /* Small input box for the answer */
+    input.captcha-input {
+      width: 70px !important;
       text-align: center;
-      margin: 0 !important;
       padding: 8px !important;
+      margin: 0 !important;
       font-weight: bold;
       border: 2px solid #d1d5db;
+      border-radius: 4px;
     }
+
+    input.captcha-input:focus {
+      border-color: var(--primary);
+      box-shadow: none;
+    }
+
     .captcha-refresh {
       background: none;
       border: none;
-      font-size: 1.2rem;
       cursor: pointer;
-      color: #6b7280;
-      width: auto;
+      font-size: 1.2rem;
       padding: 0 5px;
-      transition: transform 0.2s;
+      color: #6b7280;
+      transition: transform 0.3s ease, color 0.2s;
+      width: auto;
     }
+
     .captcha-refresh:hover {
-      color: #2563eb;
+      color: var(--primary);
       transform: rotate(180deg);
     }
+
+    /* =========================================
+       5. UTILITIES
+       ========================================= */
+    .hidden { display: none !important; }
+
+    .error {
+      color: #dc2626;
+      font-size: 0.875rem;
+      background-color: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 10px;
+      border-radius: 4px;
+      display: none; /* JS toggles this */
+      margin-top: 15px;
+    }
+    .error:not(:empty) { display: block; }
   </style>
 </head>
 <body class="login-page">
