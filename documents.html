@@ -5,25 +5,85 @@
   <title>Document Vault - GLBXTNT ERP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* VAULT SPECIFIC STYLES */
+    .upload-box {
+      background: #f8f9fa;
+      border: 2px dashed #dee2e6;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    .upload-box:hover { border-color: #0d6efd; background: #f1f7ff; }
+
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .doc-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 15px;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .doc-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: #0d6efd; }
+
+    .tag {
+      font-size: 0.7em;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+    .tag-General { background: #e9ecef; color: #495057; }
+    .tag-Identity { background: #d1e7dd; color: #0f5132; }
+    .tag-Legal { background: #f8d7da; color: #842029; }
+    .tag-Policy { background: #cff4fc; color: #055160; }
+  </style>
 </head>
 <body>
   <div class="container">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2>📂 Company Documents</h2>
-      <a href="main.html">Back to Dashboard</a>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <h2>📂 Document Vault</h2>
+      <a href="main.html" class="secondary">← Back to Dashboard</a>
     </div>
 
-    <div id="upload-section" style="display:none; background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:30px; border:1px dashed #ccc;">
-      <h3>Upload New Document</h3>
+    <div id="upload-section" class="upload-box" style="display:none;">
+      <h3 style="margin-top:0; color:#0d6efd;">Upload New Document</h3>
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        <input type="text" id="doc-title" placeholder="Document Title (e.g. Leave Policy)" style="flex:1; padding:10px; min-width:200px;">
-        <input type="file" id="doc-file" style="padding:10px;">
-        <button onclick="uploadDoc()" style="background:#007bff;">Upload</button>
+        <input type="text" id="doc-name" placeholder="Document Name (e.g. Offer Letter)" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:4px; min-width:200px;">
+        
+        <select id="doc-category" style="padding:10px; border:1px solid #ccc; border-radius:4px;">
+          <option value="General">General</option>
+          <option value="Identity">Identity Proof</option>
+          <option value="Legal">Legal/Contract</option>
+          <option value="Policy">Company Policy</option>
+        </select>
+
+        <input type="file" id="doc-file" style="padding:10px; background:white; border:1px solid #ccc; border-radius:4px;">
+        <button id="upload-btn" style="background:#0d6efd; color:white; border:none; padding:10px 20px; border-radius:4px; font-weight:bold; cursor:pointer;">Upload</button>
       </div>
+      <div id="upload-msg" style="margin-top:10px; font-size:0.9em;"></div>
     </div>
 
-    <div id="doc-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:20px;">
-      Loading...
+    <div style="margin-bottom:25px; border-bottom:1px solid #eee; padding-bottom:15px;">
+      <span style="margin-right:10px; font-weight:bold; color:#666;">Filter:</span>
+      <button onclick="filterDocs('All')" style="margin-right:5px; padding:5px 12px; cursor:pointer;">All</button>
+      <button onclick="filterDocs('Policy')" style="margin-right:5px; padding:5px 12px; cursor:pointer;">Policies</button>
+      <button onclick="filterDocs('Identity')" style="margin-right:5px; padding:5px 12px; cursor:pointer;">My ID Proofs</button>
+    </div>
+
+    <div id="doc-list" class="doc-grid">
+      <p style="color:#888;">Loading documents...</p>
     </div>
   </div>
 

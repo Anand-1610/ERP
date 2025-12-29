@@ -165,3 +165,39 @@ h1 {
     grid-template-columns: 1fr; /* Stack 1 column on mobile */
   }
 }
+
+/* MOBILE NAVIGATION STYLES */
+.mobile-nav {
+  display: none; /* Hidden on desktop */
+}
+
+@media (max-width: 600px) {
+  /* Hide the big grid menu to save space if needed, or keep it */
+  /* .menu-list { display: none; } <--- Uncomment if you want to hide the grid on mobile */
+
+  /* Show Bottom Bar */
+  .mobile-nav {
+    display: flex;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    border-top: 1px solid #ddd;
+    padding: 10px 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+
+  .nav-item {
+    text-align: center;
+    text-decoration: none;
+    font-size: 0.8rem;
+    color: #555;
+    font-weight: 600;
+  }
+  
+  /* Add padding to body so content doesn't hide behind nav */
+  body { padding-bottom: 70px; }
+}

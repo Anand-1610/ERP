@@ -1,4 +1,4 @@
-// Attendance Logic - Fixed & Debuggable with IST Support
+// Attendance Logic - Fixed & Debuggable with IST Support & Smart Constraints
 window.addEventListener('DOMContentLoaded', async () => {
   try {
     // 1. Check Session
@@ -28,7 +28,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     const employeeId = emp.id;
     
     // --- FORCE IST DATE ---
-    // This ensures "today" is always based on Indian Time, regardless of server location
     const getISTDate = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
     const today = getISTDate(); // Returns "YYYY-MM-DD"
     // ----------------------
@@ -91,7 +90,6 @@ window.addEventListener('DOMContentLoaded', async () => {
                  <div id="action-error" class="error" style="margin-top:10px; color:red;"></div>`;
       } else if (!att.out_time) {
         // Checked In
-        // Display Time in IST
         const inTimeIST = new Date(att.in_time).toLocaleTimeString('en-US', {timeZone: 'Asia/Kolkata', hour:'2-digit', minute:'2-digit'});
         
         html += `<div style="text-align:center; margin-bottom:20px; padding:15px; background:#f0fdf4; border-radius:8px;">
@@ -124,6 +122,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('attendance-actions').innerHTML = html;
 
     // --- ATTACH LISTENERS ---
+    
+    // 1. CLOCK IN
     const inBtn = document.getElementById('in-btn');
     if (inBtn) inBtn.onclick = async () => {
       inBtn.disabled = true; inBtn.textContent = "Processing...";
@@ -132,8 +132,38 @@ window.addEventListener('DOMContentLoaded', async () => {
       else location.reload();
     };
 
+    // 2. CLOCK OUT (WITH "TOO SHORT" CONSTRAINT)
     const outBtn = document.getElementById('out-btn');
     if (outBtn) outBtn.onclick = async () => {
+      
+      const inTime = new Date(att.in_time);
+      const now = new Date();
+      const diffMins = (now - inTime) / 60000; // Minutes diff
+
+      // CONSTRAINT: Less than 10 minutes
+      if (diffMins < 10) {
+          const confirmMsg = `⚠️ WARNING: You clocked in only ${Math.floor(diffMins)} minutes ago.\n\n` + 
+                             `If you Clock Out now, this attendance will be DISCARDED and marked as ABSENT/INVALID.\n\n` +
+                             `Are you sure?`;
+
+          if(confirm(confirmMsg)) {
+             // USER CONFIRMED: DELETE THE RECORD
+             outBtn.disabled = true; outBtn.textContent = "Discarding...";
+             const { error } = await supabaseClient.from('attendance').delete().eq('id', att.id);
+             
+             if(error) { 
+                 alert(error.message); 
+                 outBtn.disabled = false; 
+                 outBtn.textContent = "CLOCK OUT"; 
+             } else { 
+                 alert("Entry discarded. You are marked as Absent for now.");
+                 location.reload(); 
+             }
+          }
+          return; // Stop here if confirmed (deleted) OR cancelled.
+      }
+      
+      // NORMAL CLOCK OUT ( > 10 mins)
       outBtn.disabled = true; outBtn.textContent = "Processing...";
       const { error } = await supabaseClient.from('attendance').update({ out_time: new Date().toISOString() }).eq('id', att.id);
       if (error) { document.getElementById('action-error').textContent = error.message; outBtn.disabled = false; outBtn.textContent = "CLOCK OUT"; } 
@@ -146,7 +176,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       downloadCSV(data, `my_attendance_${today}.csv`);
     };
 
-    // 5. ADMIN VIEW TABLE (Right Side)
+    // 5. ADMIN VIEW TABLE
     if (["Admin", "Manager"].includes(emp.role)) {
       const { data: allAtt, error: allErr } = await supabaseClient
         .from('attendance')
@@ -162,7 +192,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         allAtt.forEach(r => {
           const duration = getDuration(r.in_time, r.out_time);
           const empName = r.employees ? r.employees.name : 'Unknown';
-          
           const tIn = r.in_time ? new Date(r.in_time).toLocaleTimeString('en-US', {timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit'}) : '-';
           const tOut = r.out_time ? new Date(r.out_time).toLocaleTimeString('en-US', {timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit'}) : '-';
 
