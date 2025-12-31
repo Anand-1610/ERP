@@ -1,4 +1,4 @@
-// history.js - Master Records Logic (Updated with Absent Count)
+// history.js - Master Records Logic (Updated with Duration Calculation)
 
 window.addEventListener('DOMContentLoaded', async () => {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -20,6 +20,21 @@ window.addEventListener('DOMContentLoaded', async () => {
         return date.toLocaleString('en-IN', options);
     };
 
+    // HELPER: CALCULATE DURATION
+    const getDuration = (start, end) => {
+        if (!start || !end) return '-';
+        const s = new Date(start);
+        const e = new Date(end);
+        const diffMs = e - s;
+        
+        if (diffMs < 0) return '-'; // Error handling if out time is before in time
+
+        const hrs = Math.floor(diffMs / (1000 * 60 * 60));
+        const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        
+        return `${hrs}h ${mins}m`;
+    };
+
     // Initialize Month Picker to Current Month
     const todayObj = new Date();
     const currentMonthStr = todayObj.getFullYear() + "-" + String(todayObj.getMonth() + 1).padStart(2, '0');
@@ -36,7 +51,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         event.target.classList.add('active'); 
 
         const monthControl = document.getElementById('month-control');
-        monthControl.style.display = ['summary', 'tracker'].includes(tab) ? 'block' : 'none';
+        // Hide month picker for tabs that don't need it
+        monthControl.style.display = ['summary', 'tracker'].includes(tab) ? 'flex' : 'none';
 
         fetchData();
     };
@@ -46,14 +62,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         const container = document.getElementById('data-container');
         container.innerHTML = '<div style="padding:40px; text-align:center; color:#555;">🔄 Fetching records...</div>';
 
-        const monthVal = document.getElementById('month-picker').value; // YYYY-MM
+        const monthVal = document.getElementById('month-picker').value; 
         const [year, month] = monthVal.split('-');
         
         const startDate = `${monthVal}-01`;
         const lastDay = new Date(year, month, 0).getDate();
         const endDate = `${monthVal}-${lastDay}`;
         
-        // GET TODAY IN IST (For Real-Time Calculation)
         const todayIST = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
         // -----------------------------------------------------------
@@ -71,7 +86,6 @@ window.addEventListener('DOMContentLoaded', async () => {
                 const presentCount = atts.data.filter(a => a.employee_id === e.id).length;
                 const holidayCount = hols.data.length;
                 
-                // Count Leave Types
                 let sick=0, casual=0, earned=0, unpaid=0, wfh=0;
                 
                 leaves.data.filter(l => l.employee_id === e.id).forEach(l => {
@@ -87,42 +101,29 @@ window.addEventListener('DOMContentLoaded', async () => {
                     else if(l.leave_type === 'Work From Home') wfh += days;
                 });
 
-                // --- NEW: CALCULATE ABSENT COUNT ---
                 let absentCount = 0;
                 for(let d=1; d<=lastDay; d++) {
                     const dayStr = `${monthVal}-${String(d).padStart(2,'0')}`;
-                    
-                    // Rule 1: Ignore Future Days
-                    if(dayStr > todayIST) continue;
-
-                    // Rule 2: Ignore if Holiday
-                    if(hols.data.some(h => h.date === dayStr)) continue;
-
-                    // Rule 3: Ignore if Present
-                    if(atts.data.some(a => a.employee_id === e.id && a.date === dayStr)) continue;
-
-                    // Rule 4: Ignore if on ANY Leave
+                    if(dayStr > todayIST) continue; 
+                    if(hols.data.some(h => h.date === dayStr)) continue; 
+                    if(atts.data.some(a => a.employee_id === e.id && a.date === dayStr)) continue; 
                     const onLeave = leaves.data.some(l => l.employee_id === e.id && l.start_date <= dayStr && l.end_date >= dayStr);
-                    if(onLeave) continue;
-
-                    // If none of the above, they are Absent
+                    if(onLeave) continue; 
                     absentCount++;
                 }
-                // -----------------------------------
 
                 const payable = presentCount + sick + casual + earned + holidayCount + wfh;
 
                 return {
                     'Employee': e.name, 'Role': e.role,
                     'Present': presentCount, 
-                    'Absent': absentCount, // Added here
+                    'Absent': absentCount,
                     'WFH': wfh,
                     'Sick': sick, 'Casual': casual, 'Earned': earned, 'Unpaid': unpaid,
                     'Holidays': holidayCount, 'Total Payable': payable
                 };
             });
             
-            // Render with new Absent Column
             renderTable(summaryData, Object.keys(summaryData[0]), (row) => `
                 <td><strong>${row.Employee}</strong></td><td><small>${row.Role}</small></td>
                 <td class="st-Green">${row.Present}</td>
@@ -155,7 +156,6 @@ window.addEventListener('DOMContentLoaded', async () => {
                 
                 daysInMonth.forEach((dayStr, idx) => {
                     const dayNum = idx + 1;
-                    
                     const hol = hols.data.find(h => h.date === dayStr);
                     if(hol) { row[dayNum] = 'H'; return; }
 
@@ -195,13 +195,23 @@ window.addEventListener('DOMContentLoaded', async () => {
             });
 
         // -----------------------------------------------------------
-        // 3. OTHER TABS (Standard Lists)
+        // 3. UPDATED ATTENDANCE TAB (With Total Time)
         // -----------------------------------------------------------
         } else if (currentTab === 'attendance') {
             const { data } = await supabaseClient.from('attendance').select('*, employees(name)').order('date', {ascending: false}).limit(100);
-            renderTable(data, ['Date', 'Employee', 'In Time', 'Out Time'], (row) => 
-                `<td>${toIST(row.date)}</td><td><strong>${row.employees?.name}</strong></td><td>${toIST(row.in_time, true).split(',')[1]||'-'}</td><td>${toIST(row.out_time, true).split(',')[1]||'-'}</td>`
-            );
+            
+            // Added "Total Duration" to headers
+            renderTable(data, ['Date', 'Employee', 'In Time', 'Out Time', 'Total Duration'], (row) => `
+                <td>${toIST(row.date)}</td>
+                <td><strong>${row.employees?.name}</strong></td>
+                <td>${toIST(row.in_time, true).split(',')[1]||'-'}</td>
+                <td>${toIST(row.out_time, true).split(',')[1]||'-'}</td>
+                <td style="font-weight:bold; color:#0056b3;">${getDuration(row.in_time, row.out_time)}</td>
+            `);
+
+        // -----------------------------------------------------------
+        // 4. OTHER TABS
+        // -----------------------------------------------------------
         } else if (currentTab === 'leaves') {
             const { data } = await supabaseClient.from('leaves').select('*, employees(name)').order('created_at', {ascending: false});
             renderTable(data, ['Applied On', 'Name', 'Type', 'From', 'To', 'Status'], (row) => 

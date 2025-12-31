@@ -5,14 +5,116 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Finance - GLBXTNT ERP</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Global Styles */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
+    
+    .container { 
+        max-width: 900px; 
+        margin: 0 auto; 
+        background: #fff; 
+        padding: 25px; 
+        border-radius: 8px; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+    }
+
+    /* Header */
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #f1f1f1; padding-bottom: 15px; }
+    .header-row h2 { margin: 0; color: #333; }
+    .header-row a { text-decoration: none; color: #555; font-weight: 500; transition: 0.2s; }
+    .header-row a:hover { color: #007bff; }
+
+    /* Form Section */
+    #finance-form-container { 
+        background: #f8f9fa; 
+        padding: 20px; 
+        border-radius: 8px; 
+        border: 1px solid #eee; 
+        margin-bottom: 25px; 
+    }
+
+    /* Input Styling (Targeting JS-generated elements) */
+    #finance-form-container input, 
+    #finance-form-container select {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.95em;
+        width: 100%; /* Full width on mobile, adjusted via flex if needed by JS */
+        box-sizing: border-box;
+    }
+
+    #finance-form-container label { font-weight: bold; display: block; margin-bottom: 5px; color: #555; }
+
+    /* Buttons */
+    button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    
+    /* Add Transaction Button */
+    button:not(.export-btn) { background: #007bff; color: white; margin-top: 5px; }
+    button:not(.export-btn):hover { background: #0056b3; }
+
+    /* Export Button */
+    button:contains("Export"), .export-btn { background: #28a745; color: white; margin-top: 15px; }
+
+    /* Delete/Action Buttons (if any) */
+    .btn-delete { background: #dc3545; color: white; padding: 5px 10px; font-size: 0.8em; }
+
+    /* Finance Summary Boxes (Credit/Debit/Balance displays) */
+    .finance-summary {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    .finance-summary div {
+        flex: 1;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+    
+    /* Table Styling */
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9em; }
+    th { background: #f1f1f1; text-align: left; padding: 12px; border-bottom: 2px solid #ddd; color: #555; }
+    td { padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+    tr:hover { background-color: #fcfcfc; }
+
+    /* Color coding for transactions */
+    .text-success { color: #28a745; font-weight: bold; } /* Income */
+    .text-danger { color: #dc3545; font-weight: bold; }  /* Expense */
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .container { padding: 15px; width: 100%; }
+        
+        .header-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .header-row a { font-size: 0.9em; }
+
+        /* Stack summary boxes */
+        .finance-summary { flex-direction: column; gap: 10px; }
+        
+        /* Scrollable Table */
+        #finance-list { overflow-x: auto; }
+        table { min-width: 600px; }
+
+        button { width: 100%; }
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h2>Finance Transactions</h2>
-    <div id="finance-form-container">Loading...</div>
-    <div id="finance-list"></div>
-    <a href="main.html">Back to Dashboard</a>
+    <div class="header-row">
+        <h2>Finance Transactions</h2>
+        <a href="main.html">&larr; Back to Dashboard</a>
+    </div>
+
+    <div id="finance-form-container">Loading form...</div>
+    
+    <div id="finance-list">Loading transactions...</div>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
   <script src="supabase.js"></script>
   <script src="finance.js"></script>

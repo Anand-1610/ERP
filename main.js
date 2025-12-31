@@ -5,7 +5,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const user = session.user;
   
   // Fetch Employee Details
-  const { data: emp } = await supabaseClient
+  const { data: emp, error } = await supabaseClient
     .from('employees')
     .select('name, role')
     .eq('email', user.email)
@@ -13,20 +13,30 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if (emp) {
     document.getElementById('welcome-msg').textContent = `Welcome, ${emp.name}`;
-    
-    // Show Admin Links
-    if (["Admin", "Manager", "Finance"].includes(emp.role)) {
-      if(document.getElementById('finance-link')) document.getElementById('finance-link').style.display = 'block';
-    }
-    if (emp.role === "Admin") {
-      if(document.getElementById('audit-link')) document.getElementById('audit-link').style.display = 'block';
-    }
-    if (emp.role === "Admin") {
-      if(document.getElementById('audit-link')) document.getElementById('audit-link').style.display = 'block';
-      // ADD THIS LINE:
-      if(document.getElementById('history-link')) document.getElementById('history-link').style.display = 'block';
+    const role = emp.role;
+
+    // --- PERMISSION / VISIBILITY LOGIC ---
+
+    // 1. Employees Button: Visible to Admin, Manager, HR
+    if (["Admin", "Manager", "HR"].includes(role)) {
+      const empLink = document.getElementById('employees-link');
+      if(empLink) empLink.style.display = 'block';
     }
 
+    // 2. Finance Link: Visible to Admin, Finance, Manager
+    if (["Admin", "Finance", "Manager"].includes(role)) {
+      const finLink = document.getElementById('finance-link');
+      if(finLink) finLink.style.display = 'block';
+    }
+
+    // 3. Master Records & Audit Logs: Visible to Admin Only
+    if (role === 'Admin') {
+      const histLink = document.getElementById('history-link');
+      if(histLink) histLink.style.display = 'block';
+
+      const auditLink = document.getElementById('audit-link');
+      if(auditLink) auditLink.style.display = 'block';
+    }
 
     // --- NOTICE BOARD LOGIC ---
     const { data: notices } = await supabaseClient
@@ -42,13 +52,16 @@ window.addEventListener('DOMContentLoaded', async () => {
       notices.forEach(n => {
         const isUrgent = n.is_urgent ? '<span style="background:#dc3545; color:white; padding:2px 6px; font-size:0.7em; border-radius:4px; margin-right:5px; font-weight:bold;">URGENT</span>' : '';
         
+        // Check if user has permission to delete (Admin/Manager/HR)
+        const canDelete = ["Admin", "Manager", "HR"].includes(role);
+        
         html += `<div style="border-bottom:1px solid #eee; padding:8px 0;">
           <div style="font-weight:bold; font-size:0.95em; color:#333;">
             ${isUrgent} ${n.title} 
             <span style="font-weight:normal; color:#888; font-size:0.8em; margin-left:5px;">- ${new Date(n.created_at).toLocaleDateString()}</span>
           </div>
           <div style="color:#555; font-size:0.9em; margin-top:2px;">${n.message}</div>
-          ${["Admin", "Manager"].includes(emp.role) ? `<button onclick="deleteNotice('${n.id}')" style="font-size:0.7em; color:red; background:none; border:none; cursor:pointer; padding:0;">[Delete]</button>` : ''}
+          ${canDelete ? `<button onclick="deleteNotice('${n.id}')" style="font-size:0.7em; color:red; background:none; border:none; cursor:pointer; padding:0;">[Delete]</button>` : ''}
         </div>`;
       });
       noticeContainer.innerHTML = html;
@@ -56,21 +69,23 @@ window.addEventListener('DOMContentLoaded', async () => {
       noticeContainer.innerHTML = '<div style="color:#777; font-style:italic; padding:5px;">No recent announcements.</div>';
     }
 
-    // Post Logic (Admins Only)
-    if (["Admin", "Manager"].includes(emp.role)) {
+    // --- POST NOTICE LOGIC (Admin/Manager/HR) ---
+    if (["Admin", "Manager", "HR"].includes(role)) {
       const btn = document.getElementById('post-notice-btn');
-      btn.style.display = 'block';
-      
-      btn.onclick = async () => {
-        const title = prompt("Headline:");
-        if (!title) return;
-        const msg = prompt("Message:");
-        if (!msg) return;
-        const urgent = confirm("Is this URGENT? (Click OK for Yes)");
+      if(btn) {
+        btn.style.display = 'block';
         
-        const { error } = await supabaseClient.from('notices').insert({ title: title, message: msg, is_urgent: urgent });
-        if(error) alert(error.message); else location.reload();
-      };
+        btn.onclick = async () => {
+          const title = prompt("Headline:");
+          if (!title) return;
+          const msg = prompt("Message:");
+          if (!msg) return;
+          const urgent = confirm("Is this URGENT? (Click OK for Yes)");
+          
+          const { error } = await supabaseClient.from('notices').insert({ title: title, message: msg, is_urgent: urgent });
+          if(error) alert(error.message); else location.reload();
+        };
+      }
 
       window.deleteNotice = async (id) => {
         if(confirm("Delete this notice?")) {

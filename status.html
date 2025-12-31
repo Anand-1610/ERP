@@ -6,57 +6,103 @@
   <title>Live Workforce Status - GLBXTNT ERP</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    /* Status Badges */
-    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.9em; }
+    /* Global Styles */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
     
-    .status-Present { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; } /* Green */
-    .status-WFH { background: #cce5ff; color: #004085; border: 1px solid #b8daff; } /* Blue */
-    .status-Leave { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; } /* Yellow */
-    .status-Absent { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; } /* Red */
-    .status-Weekend { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; } /* Grey */
+    .container { 
+        max-width: 1000px; 
+        margin: 0 auto; 
+        background: #fff; 
+        padding: 25px; 
+        border-radius: 8px; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+    }
+
+    /* Header Row */
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f1f1; padding-bottom: 15px; }
+    .header-row h2 { margin: 0; color: #333; }
+    .header-row a { text-decoration: none; color: #555; font-weight: 500; transition: 0.2s; }
+    .header-row a:hover { color: #007bff; }
+
+    /* Controls Row (Date & Refresh) */
+    .controls-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: #666; }
+
+    /* Summary Cards Grid */
+    .summary-grid { display: flex; gap: 15px; margin-bottom: 25px; }
+    .summary-card { flex: 1; background: #fff; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #ddd; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    
+    .count-val { font-size: 2em; font-weight: bold; margin-bottom: 5px; }
+    .count-label { font-size: 0.8em; text-transform: uppercase; color: #666; letter-spacing: 0.5px; }
+
+    /* Badge Colors */
+    .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; white-space: nowrap; }
+    .status-Present { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; } 
+    .status-WFH { background: #cce5ff; color: #004085; border: 1px solid #b8daff; } 
+    .status-Leave { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; } 
+    .status-Absent { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; } 
+    .status-Weekend { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+
+    /* Table Styles */
+    .table-container { overflow-x: auto; margin-bottom: 30px; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; } /* Ensures min width for scroll */
+    th { text-align: left; padding: 12px; background: #f8f9fa; border-bottom: 2px solid #ddd; color: #555; }
+    td { padding: 12px; border-bottom: 1px solid #eee; }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .container { padding: 15px; width: 100%; }
+        
+        .header-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .header-row a { font-size: 0.9em; }
+
+        .controls-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+        
+        /* Stack summary cards 2x2 on mobile */
+        .summary-grid { flex-wrap: wrap; }
+        .summary-card { flex: 1 1 45%; } /* 45% width allows 2 per row with gap */
+    }
   </style>
 </head>
 <body>
-  <div class="container" style="max-width: 900px;">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
+  <div class="container">
+    <div class="header-row">
       <h2>Live Workforce Status</h2>
-      <button onclick="location.reload()" style="padding:5px 10px; font-size:0.9em;">🔄 Refresh</button>
+      <a href="main.html">&larr; Back to Dashboard</a>
     </div>
     
-    <div style="margin-bottom: 20px; color: #666;">
-      Date: <strong id="current-date"></strong>
+    <div class="controls-row">
+      <div>Date: <strong id="current-date"></strong></div>
+      <button onclick="location.reload()" style="padding:6px 12px; cursor:pointer; background:#f8f9fa; border:1px solid #ccc; border-radius:4px;">🔄 Refresh</button>
     </div>
 
-    <div style="display:flex; gap:10px; margin-bottom:20px;">
-      <div style="flex:1; background:#fff; padding:15px; border-radius:8px; text-align:center; border:1px solid #ddd;">
-        <div style="font-size:2em; font-weight:bold; color:#28a745;" id="count-present">-</div>
-        <div style="font-size:0.8em; text-transform:uppercase; color:#666;">Present</div>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="count-val" style="color:#28a745;" id="count-present">-</div>
+        <div class="count-label">Present</div>
       </div>
-      <div style="flex:1; background:#fff; padding:15px; border-radius:8px; text-align:center; border:1px solid #ddd;">
-        <div style="font-size:2em; font-weight:bold; color:#007bff;" id="count-wfh">-</div>
-        <div style="font-size:0.8em; text-transform:uppercase; color:#666;">WFH</div>
+      <div class="summary-card">
+        <div class="count-val" style="color:#007bff;" id="count-wfh">-</div>
+        <div class="count-label">WFH</div>
       </div>
-      <div style="flex:1; background:#fff; padding:15px; border-radius:8px; text-align:center; border:1px solid #ddd;">
-        <div style="font-size:2em; font-weight:bold; color:#ffc107;" id="count-leave">-</div>
-        <div style="font-size:0.8em; text-transform:uppercase; color:#666;">On Leave</div>
+      <div class="summary-card">
+        <div class="count-val" style="color:#ffc107;" id="count-leave">-</div>
+        <div class="count-label">On Leave</div>
       </div>
-      <div style="flex:1; background:#fff; padding:15px; border-radius:8px; text-align:center; border:1px solid #ddd;">
-        <div style="font-size:2em; font-weight:bold; color:#dc3545;" id="count-absent">-</div>
-        <div style="font-size:0.8em; text-transform:uppercase; color:#666;">Absent</div>
+      <div class="summary-card">
+        <div class="count-val" style="color:#dc3545;" id="count-absent">-</div>
+        <div class="count-label">Absent</div>
       </div>
     </div>
 
-    <div id="status-table">Loading data...</div>
+    <div class="table-container" id="status-table">Loading data...</div>
 
     <div style="margin-top: 40px; border-top: 2px dashed #ccc; padding-top: 20px;">
       <h3>📅 Upcoming Availability (Next 7 Days)</h3>
-      <div style="overflow-x: auto;">
+      <div class="table-container">
         <div id="forecast-table">Loading forecast...</div>
       </div>
-
-    <br>
-    <a href="main.html">Back to Dashboard</a>
     </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
   <script src="supabase.js"></script>
