@@ -13,22 +13,30 @@
   box-sizing: border-box;
 }
 
+/* Ensure page takes full height so footer sits at bottom */
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background-color: #f3f4f6; /* Light Grey Background */
-  margin: 0;
-  padding: 20px;
+  background-color: #f3f4f6;
   color: #333;
+  margin: 0;
+  /* FLEXBOX FOR STICKY FOOTER */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-/* MAIN CONTAINER - PREVENTS EXTREME WIDE SCREENS */
+/* MAIN CONTAINER - UPDATED FIX */
 .container {
-  max-width: 900px; /* Limits width on big monitors */
-  margin: 0 auto;   /* Centers the container */
+  width: 100%;            /* FIX: Forces container to fill width */
+  max-width: 1000px;      /* Slightly wider for better view */
+  margin: 20px auto;      /* Centers it and adds vertical space */
   background: white;
   padding: 30px;
   border-radius: 12px;
   box-shadow: var(--shadow);
+  
+  /* Pushes footer down if content is short */
+  flex: 1; 
 }
 
 /* HEADER SECTION */
@@ -66,7 +74,7 @@ h1 {
 #notice-board {
   background: #fff;
   border: 1px solid var(--border);
-  border-left: 5px solid var(--primary) !important; /* Force Blue Stripe */
+  border-left: 5px solid var(--primary) !important;
   padding: 20px;
   margin-bottom: 30px;
   border-radius: 8px;
@@ -95,13 +103,12 @@ h1 {
   background: #dee2e6;
 }
 
-/* MENU GRID SYSTEM - THE BIG VISUAL UPGRADE */
+/* MENU GRID SYSTEM */
 .menu-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  /* Auto-fit columns: Minimum 260px wide, allow stretching */
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
   gap: 15px;
 }
@@ -122,17 +129,17 @@ h1 {
   color: var(--dark);
   font-weight: 500;
   transition: all 0.2s ease;
-  height: 100%; /* Ensures all cards in a row are same height */
+  height: 100%;
 }
 
 .menu-list a:hover {
-  transform: translateY(-2px); /* Slight lift effect */
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   border-color: var(--primary);
   background-color: #f8fbff;
 }
 
-/* SPECIAL LINK STYLES (Overrides) */
+/* SPECIAL LINK STYLES */
 #history-link {
   border-left: 4px solid #6f42c1;
   background: #fdfaff;
@@ -142,13 +149,10 @@ h1 {
 }
 
 /* RESPONSIVE MEDIA QUERIES */
-@media (max-width: 600px) {
-  body {
-    padding: 10px;
-  }
-  
+@media (max-width: 768px) {
   .container {
     padding: 15px;
+    width: 95%; /* Use almost full width on mobile */
   }
 
   .header-row {
@@ -157,25 +161,17 @@ h1 {
     gap: 10px;
   }
 
-  #logout-btn {
-    width: 100%;
-  }
-
   .menu-list {
-    grid-template-columns: 1fr; /* Stack 1 column on mobile */
+    grid-template-columns: 1fr;
   }
 }
 
 /* MOBILE NAVIGATION STYLES */
 .mobile-nav {
-  display: none; /* Hidden on desktop */
+  display: none;
 }
 
 @media (max-width: 600px) {
-  /* Hide the big grid menu to save space if needed, or keep it */
-  /* .menu-list { display: none; } <--- Uncomment if you want to hide the grid on mobile */
-
-  /* Show Bottom Bar */
   .mobile-nav {
     display: flex;
     justify-content: space-around;
@@ -198,6 +194,81 @@ h1 {
     font-weight: 600;
   }
   
-  /* Add padding to body so content doesn't hide behind nav */
   body { padding-bottom: 70px; }
+}
+
+/* --- PROFESSIONAL HEADER STYLES --- */
+.erp-header-global {
+  background: #003366; /* Corporate Navy Blue */
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.erp-brand { display: flex; align-items: center; gap: 10px; }
+.erp-logo { font-size: 1.5em; }
+.erp-title { font-size: 1.1em; line-height: 1.2; }
+.erp-badge { 
+  display: block; 
+  font-size: 0.6em; 
+  background: #0056b3; 
+  padding: 2px 5px; 
+  border-radius: 3px; 
+  width: fit-content; 
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.erp-controls { display: flex; align-items: center; gap: 15px; font-size: 0.9em; }
+.erp-link { color: #cfdce6; text-decoration: none; transition: 0.2s; }
+.erp-link:hover { color: white; text-decoration: underline; }
+.erp-divider { opacity: 0.5; }
+.erp-time { font-family: monospace; opacity: 0.9; }
+
+@media (max-width: 768px) {
+  .erp-header-global { flex-direction: column; gap: 10px; text-align: center; }
+  .erp-controls { font-size: 0.8em; }
+}
+
+/* --- PROFESSIONAL FOOTER STYLES --- */
+.erp-footer-global {
+  background: #e9ecef;
+  color: #495057;
+  padding: 20px;
+  border-top: 3px solid #003366;
+  font-size: 0.85em;
+  margin-top: auto; /* Pushes to bottom */
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-left { max-width: 600px; }
+.legal-text { 
+  font-size: 0.85em; 
+  color: #6c757d; 
+  margin-top: 5px; 
+  font-style: italic;
+}
+
+.footer-right { text-align: right; }
+.sys-version { color: #adb5bd; margin-top: 5px; font-family: monospace; }
+.footer-right a { color: #003366; text-decoration: none; font-weight: bold; }
+
+@media (max-width: 768px) {
+  .footer-content { flex-direction: column; align-items: center; text-align: center; }
+  .footer-right { text-align: center; }
 }
